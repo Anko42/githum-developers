@@ -15,17 +15,15 @@
         :user="user"
       />
     </v-card-text>
-    <v-card-actions>
-      <v-row>
-        <v-col class="pagination"> paginate </v-col>
-      </v-row>
+    <v-card-actions class="pagination">
+      <v-pagination v-model="page" :length="length"></v-pagination>
     </v-card-actions>
   </v-card>
 </template>
 
 <script>
 import Vue from "vue";
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import UserListItem from "./UserListItem.vue";
 
 export default Vue.extend({
@@ -37,9 +35,20 @@ export default Vue.extend({
     //this.fetchUsers();
   },
   computed: {
-    ...mapGetters(["GET_USERS", "IS_LOADING"]),
+    ...mapGetters(["GET_USERS", "IS_LOADING", "GET_FILTER_PAGE", "GET_USERS_TOTAL_COUNT","GET_FILTER_PER_PAGE"]),
     loading() {
       return this.IS_LOADING;
+    },
+    length() {
+      return ~~(this.GET_USERS_TOTAL_COUNT / this.GET_FILTER_PER_PAGE);
+    },
+    page: {
+      get: function(){
+        return this.GET_FILTER_PAGE
+      },
+      set: function(value){
+        this.SET_FILTER_PAGE(value)
+      } 
     },
 
     users() {
@@ -48,7 +57,16 @@ export default Vue.extend({
   },
   methods: {
     ...mapActions(["fetchUsers"]),
+    ...mapMutations(["SET_FILTER_PAGE"]),
   },
+  watch:{
+    page: {
+      immediate: false,
+      handler: function(value){
+        this.fetchUsers();
+      }
+    }
+  }
 });
 </script>
 

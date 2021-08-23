@@ -14,11 +14,14 @@ export default {
       url: `https://api.github.com/search/users?q=location:${location}&per_page=${per_page}&page=${page}&sort=${sort}&order=${order}`,
     })
       .then((response) => {
-        if (!(response.data && response.data.items)) {
+        if (!(response.data && response.data.items && response.data.total_count)) {
           throw new Error("Error");
         }
 
-        return response.data.items;
+        return {
+          user_raw_list: response.data.items,
+          total_count: response.data.total_count,
+        };
       })
       .catch((error) => {
         console.error(error);

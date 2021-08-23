@@ -11,10 +11,11 @@ export const user: Module<any, any> = {
     filter: {
       location: "Bratislava",
       page: 1,
-      per_page: 4,
+      per_page: 5,
       sort: "repositories", // repositories / followers / joined,
       order: "desc",
     },
+    total_count: 0
   },
   getters: {
     GET_USERS: function (state) {
@@ -26,6 +27,15 @@ export const user: Module<any, any> = {
     IS_LOADING: function (state) {
       return state.loading;
     },
+    GET_FILTER_PAGE: function (state) {
+      return state.filter.page
+    },
+    GET_FILTER_PER_PAGE: function (state) {
+      return state.filter.page
+    },
+    GET_USERS_TOTAL_COUNT: function (state){
+      return state.total_count;
+    }
   },
   mutations: {
     SET_USERS: function (state, users: User[]) {
@@ -37,10 +47,16 @@ export const user: Module<any, any> = {
     SET_LOADING: function (state, status: boolean) {
       state.loading = status;
     },
+    SET_TOTAL_COUNT: function (state, count: number) {
+      state.total_count = count;
+    },
+    SET_FILTER_PAGE: function (state, page: number) {
+      state.filter.page = page;
+    }
   },
   actions: {
     fetchUsers: function ({ commit, state }) {
-      UserAPI.fetchUsers(state.filter).then((user_raw_list) => {
+      UserAPI.fetchUsers(state.filter).then(({user_raw_list, total_count}) => {
         if (!user_raw_list) {
           console.error("Notification");
         }
@@ -54,6 +70,8 @@ export const user: Module<any, any> = {
             users.push(new User(user_detail_data));
           });
           commit("SET_USERS", users);
+          commit("SET_TOTAL_COUNT", total_count);
+          
           commit("SET_LOADING", false);
         }
       });
