@@ -2,9 +2,9 @@
   <v-card class="UserList" :loading="loading" :disabled="loading">
     <v-card-title class="UserListHeader">
       <v-row>
-        <v-col cols="1">&nbsp;</v-col>
-        <v-col cols="5">Login</v-col>
-        <v-col cols="3"> Repos count</v-col>
+        <v-col cols="3"><UserFilter /></v-col>
+        <v-col cols="4">Login</v-col>
+        <v-col cols="2"> Repos count</v-col>
         <v-col cols="3"> Followers count </v-col>
       </v-row>
     </v-card-title>
@@ -25,11 +25,13 @@
 import Vue from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import UserListItem from "./UserListItem.vue";
+import UserFilter from "./UserFilter.vue";
 
 export default Vue.extend({
   name: "UserList",
   components: {
     UserListItem,
+    UserFilter
   },
   mounted() {
     //this.fetchUsers();

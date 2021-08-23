@@ -1,10 +1,10 @@
 <template>
   <v-row class="UserListItem" @click="showDetail">
-    <v-col cols="1"
+    <v-col cols="3"
       ><v-img max-height="100px" :src="user.avatar_url"></v-img
     ></v-col>
-    <v-col cols="5">{{ user.login }}</v-col>
-    <v-col cols="3"> {{ user.repos_count }} </v-col>
+    <v-col cols="4">{{ user.login }}</v-col>
+    <v-col cols="2"> {{ user.repos_count }} </v-col>
     <v-col cols="3"> {{ user.followers_count }} </v-col>
   </v-row>
 </template>

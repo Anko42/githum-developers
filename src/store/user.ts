@@ -15,7 +15,7 @@ export const user: Module<any, any> = {
       sort: "repositories", // repositories / followers / joined,
       order: "desc",
     },
-    total_count: 0
+    total_count: 0,
   },
   getters: {
     GET_USERS: function (state) {
@@ -28,14 +28,17 @@ export const user: Module<any, any> = {
       return state.loading;
     },
     GET_FILTER_PAGE: function (state) {
-      return state.filter.page
+      return state.filter.page;
     },
     GET_FILTER_PER_PAGE: function (state) {
-      return state.filter.page
+      return state.filter.page;
     },
-    GET_USERS_TOTAL_COUNT: function (state){
+    GET_FILTER_LOCATION: function (state) {
+      return state.filter.location;
+    },
+    GET_USERS_TOTAL_COUNT: function (state) {
       return state.total_count;
-    }
+    },
   },
   mutations: {
     SET_USERS: function (state, users: User[]) {
@@ -52,29 +55,38 @@ export const user: Module<any, any> = {
     },
     SET_FILTER_PAGE: function (state, page: number) {
       state.filter.page = page;
-    }
+    },
+    SET_FILTER_LOCATION: function (state, location: string) {
+      state.filter.location = location;
+    },
+    SET_FILTER: function (state, { sort, order }: any) {
+      state.filter.sort = sort;
+      state.filter.order = order;
+    },
   },
   actions: {
     fetchUsers: function ({ commit, state }) {
-      UserAPI.fetchUsers(state.filter).then(({user_raw_list, total_count}) => {
-        if (!user_raw_list) {
-          console.error("Notification");
+      UserAPI.fetchUsers(state.filter).then(
+        ({ user_raw_list, total_count }) => {
+          if (!user_raw_list) {
+            console.error("Notification");
+          }
+
+          const users = <User[]>[];
+
+          for (const user_index in user_raw_list) {
+            const temp_user = new User(user_raw_list[user_index]);
+
+            UserAPI.loadUserDetail(temp_user).then((user_detail_data) => {
+              users.push(new User(user_detail_data));
+            });
+            commit("SET_USERS", users);
+            commit("SET_TOTAL_COUNT", total_count);
+
+            commit("SET_LOADING", false);
+          }
         }
-
-        const users = <User[]>[];
-
-        for (const user_index in user_raw_list) {
-          const temp_user = new User(user_raw_list[user_index]);
-
-          UserAPI.loadUserDetail(temp_user).then((user_detail_data) => {
-            users.push(new User(user_detail_data));
-          });
-          commit("SET_USERS", users);
-          commit("SET_TOTAL_COUNT", total_count);
-          
-          commit("SET_LOADING", false);
-        }
-      });
+      );
     },
     loadUserDetail: async function ({ commit, state }, user: User) {
       commit("SET_LOADING", true);
@@ -90,23 +102,25 @@ export const user: Module<any, any> = {
           commit("SET_LOADING", false);
         });
     },
-    loadUserDetailWithReposAndFollowers: async function ({ commit, state }, user: User) {
+    loadUserDetailWithReposAndFollowers: async function (
+      { commit, state },
+      user: User
+    ) {
       commit("SET_LOADING", true);
       await UserAPI.loadUserDetail(user)
-        .then(async (detail_raw) => {     
-
+        .then(async (detail_raw) => {
           if (!detail_raw) {
             console.error("Notification");
           }
           const detail = new User(detail_raw);
 
           await UserAPI.loadUserRepositories(user).then((repositories) => {
-            detail.setReposList(repositories); 
-          })
+            detail.setReposList(repositories);
+          });
 
           await UserAPI.loadUserFollowers(user).then((followers) => {
-            detail.setFollowersList(followers); 
-          })
+            detail.setFollowersList(followers);
+          });
 
           commit("SET_DETAIL", detail);
         })
@@ -116,23 +130,23 @@ export const user: Module<any, any> = {
     },
     loadUserRepos: async function ({ commit, state }, page: number) {
       const detail = state.detail;
-      if(!page){
+      if (!page) {
         page = 1;
       }
       UserAPI.loadUserRepositories(detail, page).then((repositories) => {
-        detail.setReposList(repositories); 
+        detail.setReposList(repositories);
         commit("SET_DETAIL", detail);
-      })
+      });
     },
     loadUserFollowers: async function ({ commit, state }, page: number) {
       const detail = state.detail;
-      if(!page){
+      if (!page) {
         page = 1;
       }
       UserAPI.loadUserRepositories(detail, page).then((repositories) => {
-        detail.setReposList(repositories); 
+        detail.setReposList(repositories);
         commit("SET_DETAIL", detail);
-      })
+      });
     },
   },
 };
