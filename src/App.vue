@@ -29,3 +29,9 @@ export default Vue.extend({
   }),
 });
 </script>
+
+<style lang="less">
+.row{
+  margin: 0!important;
+}
+</style>

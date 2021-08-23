@@ -20,3 +20,13 @@ export interface RawUser{
     public_repos: number;
     followers: number;
 }
+
+export interface UserFilter{
+    location: string;
+    page: number;
+    per_page: number;
+    sort: string;
+    order: string;
+}
+
+
