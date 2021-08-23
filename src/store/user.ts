@@ -72,5 +72,49 @@ export const user: Module<any, any> = {
           commit("SET_LOADING", false);
         });
     },
+    loadUserDetailWithReposAndFollowers: async function ({ commit, state }, user: User) {
+      commit("SET_LOADING", true);
+      await UserAPI.loadUserDetail(user)
+        .then(async (detail_raw) => {     
+
+          if (!detail_raw) {
+            console.error("Notification");
+          }
+          const detail = new User(detail_raw);
+
+          await UserAPI.loadUserRepositories(user).then((repositories) => {
+            detail.setReposList(repositories); 
+          })
+
+          await UserAPI.loadUserFollowers(user).then((followers) => {
+            detail.setFollowersList(followers); 
+          })
+
+          commit("SET_DETAIL", detail);
+        })
+        .finally(() => {
+          commit("SET_LOADING", false);
+        });
+    },
+    loadUserRepos: async function ({ commit, state }, page: number) {
+      const detail = state.detail;
+      if(!page){
+        page = 1;
+      }
+      UserAPI.loadUserRepositories(detail, page).then((repositories) => {
+        detail.setReposList(repositories); 
+        commit("SET_DETAIL", detail);
+      })
+    },
+    loadUserFollowers: async function ({ commit, state }, page: number) {
+      const detail = state.detail;
+      if(!page){
+        page = 1;
+      }
+      UserAPI.loadUserRepositories(detail, page).then((repositories) => {
+        detail.setReposList(repositories); 
+        commit("SET_DETAIL", detail);
+      })
+    },
   },
 };

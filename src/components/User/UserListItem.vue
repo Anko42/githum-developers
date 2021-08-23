@@ -11,7 +11,7 @@
 
 <script>
 import Vue from "vue";
-import {mapActions} from "vuex"
+import { mapActions } from "vuex";
 
 export default Vue.extend({
   name: "UserListItem",
@@ -21,14 +21,19 @@ export default Vue.extend({
     },
   },
   methods: {
-    ...mapActions(['loadUserDetail']),
+    ...mapActions({
+      loadUserDetail: "loadUserDetailWithReposAndFollowers",
+    }),
 
-     showDetail: async function(){
-      const {user} = this
+    showDetail: async function () {
+      const { user } = this;
       await this.loadUserDetail(user);
-      this.$router.push({name: "UserDetail", params:{ username: user.login }})
-    }
-  }
+      this.$router.push({
+        name: "UserDetail",
+        params: { username: user.login },
+      });
+    },
+  },
 });
 </script>
 

@@ -41,4 +41,41 @@ export default {
         return false;
       });
   },
+  loadUserRepositories: async function ({ repos_url }: IUser, page?: number): Promise<any> {
+    let url = repos_url
+    if(page){
+      url = `${url}?page=${page}`
+    }
+    return await axios({ url: url })
+      .then((response) => {
+        if (!response.data) {
+          throw new Error("Error");
+        }
+
+        return response.data;
+      })
+      .catch((error) => {
+        console.error(error);
+        return false;
+      });
+  },
+
+  loadUserFollowers: async function ({ followers_url }: IUser, page?: number): Promise<any> {
+    let url = followers_url
+    if(page){
+      url = `${url}?page=${page}`
+    }
+    return await axios({ url: url })
+      .then((response) => {
+        if (!response.data) {
+          throw new Error("Error");
+        }
+
+        return response.data;
+      })
+      .catch((error) => {
+        console.error(error);
+        return false;
+      });
+  },
 };

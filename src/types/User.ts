@@ -7,6 +7,8 @@ export interface User{
     followers_count: number;
     followers_url: string;
     repos_url: string;
+    repos_list?: Array<any>;
+    followers_list?: Array<any>;
 }
 
 
@@ -19,6 +21,8 @@ export interface RawUser{
     repos_url: string;
     public_repos: number;
     followers: number;
+    repos_list?: Array<any>;
+    followers_list?: Array<any>;
 }
 
 export interface UserFilter{
