@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
-        <h1>Github developers</h1>
+        <h1 class="clickable" @click="$router.push({name: 'Home'})">Github developers</h1>
       </div>
 
       <v-spacer></v-spacer>
@@ -40,5 +40,9 @@ export default Vue.extend({
 <style lang="less">
 .row{
   margin: 0!important;
+}
+
+.clickable{
+  cursor: pointer;
 }
 </style>

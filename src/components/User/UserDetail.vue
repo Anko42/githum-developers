@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="loading">
+  <v-card>
     <v-card-title>
       GitHub developer - {{ `${user.login} | ${user.fullName}` }}
     </v-card-title>
@@ -69,13 +69,19 @@ export default Vue.extend({
     per_page: 30,
   }),
   computed: {
-    ...mapGetters(["GET_USER_DETAIL", "IS_LOADING"]),
+    ...mapGetters(["GET_USER_DETAIL", "IS_LOADING", "GET_PROFILE"]),
     user() {
+      if(this.isProfile){
+        return this.GET_PROFILE
+      }
       return this.GET_USER_DETAIL;
     },
     loading() {
       return this.IS_LOADING;
     },
+    isProfile(){
+      return this.$route.name == 'Profile'
+    }
   },
   methods:{
     ...mapActions(['loadUserRepos','loadUserFollowers'])

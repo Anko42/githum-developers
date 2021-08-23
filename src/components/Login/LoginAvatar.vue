@@ -22,13 +22,11 @@
               <v-img :src="user.avatar_url"></v-img>
             </v-avatar>
             <h3>{{ user.fullName }}</h3>
-            <p class="text-caption mt-1">
-              {{ user.email }}
-            </p>
+            <v-divider class="my-3"></v-divider>
+            <v-btn depressed rounded text @click="showDetail"> DETAIL </v-btn>
             <v-divider class="my-3"></v-divider>
             <v-btn depressed rounded text @click="signOut"> LOGOUT </v-btn>
-            <v-divider class="my-3"></v-divider>
-            <v-btn depressed rounded text> DETAIL </v-btn>
+            
           </div>
         </v-list-item-content>
       </v-card>
@@ -68,6 +66,7 @@ export default Vue.extend({
   },
   methods: {
     ...mapMutations(["SET_PROFILE", "SET_ACCESS_TOKEN", "SIGN_OUT"]),
+
     initFirebaseOAuth: function () {
       this.ui = new firebaseui.auth.AuthUI(firebase.auth());
       this.uiConfig = {
@@ -107,6 +106,10 @@ export default Vue.extend({
           }
         );
     },
+
+    showDetail: function () {
+      this.$router.push({name: 'Profile'})
+    }
   },
   watch: {
     IS_LOGGED_IN: {

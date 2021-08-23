@@ -16,6 +16,11 @@ const routes: Array<RouteConfig> = [
     name: "UserDetail",
     component: UserDetailWrapper,
   },
+  {
+    path: "/profile",
+    name: "Profile",
+    component: UserDetailWrapper,
+  },
 ];
 
 const router = new VueRouter({
