@@ -14,7 +14,9 @@ export default {
       url: `https://api.github.com/search/users?q=location:${location}&per_page=${per_page}&page=${page}&sort=${sort}&order=${order}`,
     })
       .then((response) => {
-        if (!(response.data && response.data.items && response.data.total_count)) {
+        if (
+          !(response.data && response.data.items && response.data.total_count)
+        ) {
           throw new Error("Error");
         }
 
@@ -44,10 +46,13 @@ export default {
         return false;
       });
   },
-  loadUserRepositories: async function ({ repos_url }: IUser, page?: number): Promise<any> {
-    let url = repos_url
-    if(page){
-      url = `${url}?page=${page}`
+  loadUserRepositories: async function (
+    { repos_url }: IUser,
+    page?: number
+  ): Promise<any> {
+    let url = repos_url;
+    if (page) {
+      url = `${url}?page=${page}`;
     }
     return await axios({ url: url })
       .then((response) => {
@@ -63,12 +68,35 @@ export default {
       });
   },
 
-  loadUserFollowers: async function ({ followers_url }: IUser, page?: number): Promise<any> {
-    let url = followers_url
-    if(page){
-      url = `${url}?page=${page}`
+  loadUserFollowers: async function (
+    { followers_url }: IUser,
+    page?: number
+  ): Promise<any> {
+    let url = followers_url;
+    if (page) {
+      url = `${url}?page=${page}`;
     }
     return await axios({ url: url })
+      .then((response) => {
+        if (!response.data) {
+          throw new Error("Error");
+        }
+
+        return response.data;
+      })
+      .catch((error) => {
+        console.error(error);
+        return false;
+      });
+  },
+
+  loadIssues: async function (access_token: string): Promise<any> {
+    return await axios({
+      url: "https://api.github.com/issues",
+      headers: {
+        Authorization: `token ${access_token}`,
+      },
+    })
       .then((response) => {
         if (!response.data) {
           throw new Error("Error");
