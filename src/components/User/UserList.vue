@@ -62,7 +62,7 @@ export default Vue.extend({
   watch:{
     page: {
       immediate: false,
-      handler: function(value){
+      handler: function(){
         this.fetchUsers();
       }
     }

@@ -7,10 +7,8 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn text >
-        <span class="mr-2">LOGIN</span>
-      </v-btn>
-    </v-app-bar>
+      <LoginAvatar />
+    </v-app-bar>  
 
     <v-main>
       <router-view />
@@ -18,15 +16,24 @@
   </v-app>
 </template>
 
-<script lang="ts">
+<script>
 import Vue from "vue";
+import LoginAvatar from "@/components/Login/LoginAvatar.vue"
 
 export default Vue.extend({
   name: "App",
 
+  components: {
+    LoginAvatar
+  },
+
   data: () => ({
-    //
+    showLoginOptions: false
   }),
+
+  methods:{
+   
+  }
 });
 </script>
 
