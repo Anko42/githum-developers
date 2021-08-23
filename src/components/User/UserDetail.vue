@@ -30,7 +30,10 @@
               >
                 <v-col cols="12">{{ repo.name }}</v-col>
               </v-row>
-              <v-pagination v-model="repos_page" :length="~~(user.repos_count / per_page)"></v-pagination>
+              <v-pagination
+                v-model="repos_page"
+                :length="~~(user.repos_count / per_page)"
+              ></v-pagination>
             </v-card-text>
           </v-card>
         </v-col>
@@ -41,14 +44,17 @@
               <v-row
                 v-for="(follower, index) in user.followers_list"
                 :key="`Follower-${index}`"
+                @click="showFollower(follower)"
               >
                 <v-col cols="2"
                   ><v-img :src="follower.avatar_url"></v-img
                 ></v-col>
                 <v-col cols="10">{{ follower.login }}</v-col>
               </v-row>
-              <v-pagination v-model="followers_page" :length="~~(user.followers_count / per_page)"></v-pagination>
-              
+              <v-pagination
+                v-model="followers_page"
+                :length="~~(user.followers_count / per_page)"
+              ></v-pagination>
             </v-card-text>
           </v-card>
         </v-col>
@@ -67,38 +73,58 @@ export default Vue.extend({
     followers_page: 1,
     repos_page: 1,
     per_page: 30,
+    can_load: true,
   }),
   computed: {
     ...mapGetters(["GET_USER_DETAIL", "IS_LOADING", "GET_PROFILE"]),
     user() {
-      if(this.isProfile){
-        return this.GET_PROFILE
+      if (this.isProfile) {
+        return this.GET_PROFILE;
       }
       return this.GET_USER_DETAIL;
     },
     loading() {
       return this.IS_LOADING;
     },
-    isProfile(){
-      return this.$route.name == 'Profile'
-    }
+    isProfile() {
+      return this.$route.name == "Profile";
+    },
   },
-  methods:{
-    ...mapActions(['loadUserRepos','loadUserFollowers'])
+  methods: {
+    ...mapActions(["loadUserDetailWithReposAndFollowers", "loadUserRepos", "loadUserFollowers"]),
+
+    async showFollower(follower) {
+      this.can_load = false;
+      this.followers_page = 1;
+      this.repos_page = 1;
+      this.$router.push({
+        name: "UserDetail",
+        params: { username: follower.login },
+      });
+      this.can_load = true;
+    },
   },
-  watch:{
+  watch: {
+    async ['$route.params.username'](value){
+      await this.loadUserDetailWithReposAndFollowers({login: value});
+
+    },
     followers_page: {
       immediate: false,
-      handler: function(value){
-        this.loadUserFollowers(value)
-      }
+      handler: function (value) {
+        if (this.can_load) {
+          this.loadUserFollowers(value);
+        }
+      },
     },
     repos_page: {
       immediate: false,
-      handler: function(value){
-        this.loadUserRepos(value)
-      }
-    }
-  }
+      handler: function (value) {
+        if (this.can_load) {
+          this.loadUserRepos(value);
+        }
+      },
+    },
+  },
 });
 </script>

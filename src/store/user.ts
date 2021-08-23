@@ -114,11 +114,11 @@ export const user: Module<any, any> = {
           }
           const detail = new User(detail_raw);
 
-          await UserAPI.loadUserRepositories(user).then((repositories) => {
+          await UserAPI.loadUserRepositories(detail).then((repositories) => {
             detail.setReposList(repositories);
           });
 
-          await UserAPI.loadUserFollowers(user).then((followers) => {
+          await UserAPI.loadUserFollowers(detail).then((followers) => {
             detail.setFollowersList(followers);
           });
 
