@@ -1,5 +1,5 @@
 <template>
-  <v-row class="UserListItem">
+  <v-row class="UserListItem" @click="showDetail">
     <v-col cols="1"
       ><v-img max-height="100px" :src="user.avatar_url"></v-img
     ></v-col>
@@ -11,6 +11,7 @@
 
 <script>
 import Vue from "vue";
+import {mapActions} from "vuex"
 
 export default Vue.extend({
   name: "UserListItem",
@@ -19,6 +20,15 @@ export default Vue.extend({
       required: true,
     },
   },
+  methods: {
+    ...mapActions(['loadUserDetail']),
+
+     showDetail: async function(){
+      const {user} = this
+      await this.loadUserDetail(user);
+      this.$router.push({name: "UserDetail", params:{ username: user.login }})
+    }
+  }
 });
 </script>
 

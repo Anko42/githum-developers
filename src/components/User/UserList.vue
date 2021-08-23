@@ -1,5 +1,5 @@
 <template>
-  <v-card class="UserList">
+  <v-card class="UserList" :loading="loading" :disabled="loading">
     <v-card-title class="UserListHeader">
       <v-row>
         <v-col cols="1">&nbsp;</v-col>
@@ -37,9 +37,9 @@ export default Vue.extend({
     //this.fetchUsers();
   },
   computed: {
-    ...mapGetters(["GET_USERS", "IS_USER_LIST_LOADING"]),
+    ...mapGetters(["GET_USERS", "IS_LOADING"]),
     loading() {
-      return this.IS_USER_LIST_LOADING;
+      return this.IS_LOADING;
     },
 
     users() {

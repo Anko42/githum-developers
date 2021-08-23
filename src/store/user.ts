@@ -7,7 +7,7 @@ export const user: Module<any, any> = {
   state: {
     users: <User[]>[],
     detail: <User>{},
-    loading: <boolean>false,
+    loading: false,
     filter: {
       location: "Bratislava",
       page: 1,
@@ -23,9 +23,9 @@ export const user: Module<any, any> = {
     GET_USER_DETAIL: function (state) {
       return state.detail;
     },
-    IS_USER_LIST_LOADING: function (state) {
+    IS_LOADING: function (state) {
       return state.loading;
-    }
+    },
   },
   mutations: {
     SET_USERS: function (state, users: User[]) {
@@ -34,13 +34,15 @@ export const user: Module<any, any> = {
     SET_DETAIL: function (state, user: User) {
       state.detail = user;
     },
-
+    SET_LOADING: function (state, status: boolean) {
+      state.loading = status;
+    },
   },
   actions: {
     fetchUsers: function ({ commit, state }) {
       UserAPI.fetchUsers(state.filter).then((user_raw_list) => {
-        if( !user_raw_list ){
-            console.error('Notification')
+        if (!user_raw_list) {
+          console.error("Notification");
         }
 
         const users = <User[]>[];
@@ -52,18 +54,23 @@ export const user: Module<any, any> = {
             users.push(new User(user_detail_data));
           });
           commit("SET_USERS", users);
+          commit("SET_LOADING", false);
         }
       });
     },
     loadUserDetail: async function ({ commit, state }, user: User) {
-      UserAPI.loadUserDetail(user).then((detail_raw) => {
-
-        if( !detail_raw ){
-            console.error('Notification')
-        }
-        const detail = new User(detail_raw);
-        commit("SET_DETAIL", detail);
-      });
+      commit("SET_LOADING", true);
+      await UserAPI.loadUserDetail(user)
+        .then((detail_raw) => {
+          if (!detail_raw) {
+            console.error("Notification");
+          }
+          const detail = new User(detail_raw);
+          commit("SET_DETAIL", detail);
+        })
+        .finally(() => {
+          commit("SET_LOADING", false);
+        });
     },
   },
 };
