@@ -40,7 +40,7 @@ import Vue from "vue";
 import firebase from "firebase/app";
 import * as firebaseui from "firebaseui";
 import "firebaseui/dist/firebaseui.css";
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapActions} from "vuex";
 
 export default Vue.extend({
   name: "LoginAvatar",
@@ -66,6 +66,7 @@ export default Vue.extend({
   },
   methods: {
     ...mapMutations(["SET_PROFILE", "SET_ACCESS_TOKEN", "SIGN_OUT"]),
+    ...mapActions(["loadRelations"]),
 
     initFirebaseOAuth: function () {
       this.ui = new firebaseui.auth.AuthUI(firebase.auth());
@@ -77,6 +78,7 @@ export default Vue.extend({
             if (additionalUserInfo) {
               this.SET_PROFILE(additionalUserInfo.profile);
               this.SET_ACCESS_TOKEN(credential.accessToken);
+              this.loadRelations()
             }
 
             return false;
