@@ -1,14 +1,19 @@
 <template>
-  <v-card>
+  <v-card
+    :loading="loading"
+    :disabled="loading"
+    class="UserDetail"
+    :class="{ 'mobile-xs': is_mobile_xs }"
+  >
     <v-card-title>
       GitHub developer - {{ `${user.login} | ${user.fullName}` }}
     </v-card-title>
     <v-card-text>
       <v-row>
-        <v-col cols="4">
+        <v-col cols="12" sm="4">
           <v-img :src="user.avatar_url"></v-img>
         </v-col>
-        <v-col cols="8">
+        <v-col cols="12" sm="8">
           <v-row>
             <v-col cols="4">Number of repos:</v-col>
             <v-col cols="8">{{ user.repos_count }}</v-col>
@@ -20,9 +25,19 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="12" md="6">
+        <v-col
+          cols="12"
+          sm="6"
+          class="ReposList"
+          :class="{ active: show_repos }"
+        >
           <v-card>
-            <v-card-title>Repos</v-card-title>
+            <v-card-title>
+              <span>Repos</span>
+              <v-icon v-if="is_mobile_xs" @click="show_repos = false"
+                >mdi-close</v-icon
+              >
+            </v-card-title>
             <v-card-text>
               <v-row
                 v-for="(repo, index) in user.repos_list"
@@ -37,9 +52,19 @@
             </v-card-text>
           </v-card>
         </v-col>
-        <v-col cols="12" md="6">
+        <v-col
+          cols="12"
+          sm="6"
+          class="FollowersList"
+          :class="{ active: show_followers }"
+        >
           <v-card>
-            <v-card-title>Followers</v-card-title>
+            <v-card-title>
+              <span>Followers</span>
+              <v-icon v-if="is_mobile_xs" @click="show_followers = false"
+                >mdi-close</v-icon
+              >
+            </v-card-title>
             <v-card-text>
               <v-row
                 v-for="(follower, index) in user.followers_list"
@@ -60,12 +85,16 @@
         </v-col>
       </v-row>
     </v-card-text>
+    <v-card-actions>
+      <v-btn @click="show_followers = true">Show followers</v-btn>
+      <v-btn @click="show_repos = true">Show repos</v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 
 <script>
 import Vue from "vue";
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 
 export default Vue.extend({
   name: "UserDetail",
@@ -74,6 +103,8 @@ export default Vue.extend({
     repos_page: 1,
     per_page: 30,
     can_load: true,
+    show_followers: false,
+    show_repos: false,
   }),
   computed: {
     ...mapGetters(["GET_USER_DETAIL", "IS_LOADING", "GET_PROFILE"]),
@@ -89,9 +120,18 @@ export default Vue.extend({
     isProfile() {
       return this.$route.name == "Profile";
     },
+    is_mobile_xs() {
+      const { $vuetify } = this;
+      return $vuetify.breakpoint.xs;
+    },
   },
   methods: {
-    ...mapActions(["loadUserDetailWithReposAndFollowers", "loadUserRepos", "loadUserFollowers"]),
+    ...mapActions([
+      "loadUserDetailWithReposAndFollowers",
+      "loadUserRepos",
+      "loadUserFollowers",
+    ]),
+    ...mapMutations(["SET_LOADING"]),
 
     async showFollower(follower) {
       this.can_load = false;
@@ -105,9 +145,10 @@ export default Vue.extend({
     },
   },
   watch: {
-    async ['$route.params.username'](value){
-      await this.loadUserDetailWithReposAndFollowers({login: value});
-
+    async ["$route.params.username"](value) {
+      this.SET_LOADING(true);
+      await this.loadUserDetailWithReposAndFollowers({ login: value });
+      this.SET_LOADING(false);
     },
     followers_page: {
       immediate: false,
@@ -128,3 +169,40 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style lang="less">
+.UserDetail {
+  flex: 1;
+  &.mobile-xs {
+    .v-card__text {
+      padding-bottom: 0 !important;
+    }
+
+    .ReposList,
+    .FollowersList {
+      position: absolute;
+      transform: translateX(100%);
+      transition: all 0.5s;
+      height: calc(100vh - 64px);
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      overflow: scroll;
+
+      .v-card__title {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+
+    .ReposList.active {
+      transform: translateX(0%);
+    }
+
+    .FollowersList.active {
+      transform: translateX(0%);
+    }
+  }
+}
+</style>

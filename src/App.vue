@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :class="{'mobile-xs': mobile_xs}">
     <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
         <h1 class="clickable" @click="$router.push({name: 'Home'})">Github developers</h1>
@@ -31,8 +31,15 @@ export default Vue.extend({
     showLoginOptions: false
   }),
 
-  methods:{
-   
+  computed:{
+    is_mobile() {
+      const { $vuetify } = this;
+      return $vuetify.breakpoint.sm || $vuetify.breakpoint.xs;
+    },
+    mobile_xs() {
+      const { $vuetify } = this;
+      return $vuetify.breakpoint.xs;
+    },
   }
 });
 </script>
@@ -44,5 +51,11 @@ export default Vue.extend({
 
 .clickable{
   cursor: pointer;
+}
+
+.mobile-xs{
+  h1{
+    font-size: 1rem;
+  }
 }
 </style>
