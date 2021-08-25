@@ -66,8 +66,10 @@ export const user: Module<any, any> = {
   },
   actions: {
     fetchUsers: function ({ commit, state }) {
-      UserAPI.fetchUsers(state.filter).then(
-        ({ user_raw_list, total_count }) => {
+      UserAPI.fetchUsers(state.filter)
+        .then(({ user_raw_list, total_count }) => {
+          commit("SET_LOADING", true);
+
           if (!user_raw_list) {
             console.error("Notification");
           }
@@ -82,11 +84,11 @@ export const user: Module<any, any> = {
             });
             commit("SET_USERS", users);
             commit("SET_TOTAL_COUNT", total_count);
-
-            commit("SET_LOADING", false);
           }
-        }
-      );
+        })
+        .finally(() => {
+          commit("SET_LOADING", false);
+        });
     },
     loadUserDetail: async function ({ commit, state }, user: User) {
       commit("SET_LOADING", true);
@@ -143,8 +145,8 @@ export const user: Module<any, any> = {
       if (!page) {
         page = 1;
       }
-      UserAPI.loadUserRepositories(detail, page).then((repositories) => {
-        detail.setReposList(repositories);
+      UserAPI.loadUserFollowers(detail, page).then((repositories) => {
+        detail.setFollowersList(repositories);
         commit("SET_DETAIL", detail);
       });
     },

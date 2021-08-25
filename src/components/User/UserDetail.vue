@@ -29,6 +29,7 @@
           cols="12"
           sm="6"
           class="ReposList"
+          ref="ReposList"
           :class="{ active: show_repos }"
         >
           <v-card>
@@ -39,12 +40,14 @@
               >
             </v-card-title>
             <v-card-text>
-              <v-row
-                v-for="(repo, index) in user.repos_list"
-                :key="`Repo-${index}`"
-              >
-                <v-col cols="12">{{ repo.name }}</v-col>
-              </v-row>
+              <transition-group name="fade">
+                <v-row
+                  v-for="(repo, index) in user.repos_list"
+                  :key="`Repo-${index}`"
+                >
+                  <v-col cols="12">{{ repo.name }}</v-col>
+                </v-row>
+              </transition-group>
               <v-pagination
                 v-model="repos_page"
                 :length="~~(user.repos_count / per_page)"
@@ -56,6 +59,7 @@
           cols="12"
           sm="6"
           class="FollowersList"
+          ref="FollowersList"
           :class="{ active: show_followers }"
         >
           <v-card>
@@ -66,16 +70,20 @@
               >
             </v-card-title>
             <v-card-text>
-              <v-row
-                v-for="(follower, index) in user.followers_list"
-                :key="`Follower-${index}`"
-                @click="showFollower(follower)"
-              >
-                <v-col cols="2"
-                  ><v-img :src="follower.avatar_url"></v-img
-                ></v-col>
-                <v-col cols="10">{{ follower.login }}</v-col>
-              </v-row>
+              <transition-group name="fade">
+                <v-row
+                  v-for="(follower, index) in user.followers_list"
+                  :key="`Follower-${index}`"
+                  @click="showFollower(follower)"
+                  class="FollowersListItem"
+                >
+                  <v-col cols="2"
+                    ><v-img :src="follower.avatar_url"></v-img
+                  ></v-col>
+                  <v-col cols="10">{{ follower.login }}</v-col>
+                </v-row>
+              </transition-group>
+
               <v-pagination
                 v-model="followers_page"
                 :length="~~(user.followers_count / per_page)"
@@ -85,7 +93,7 @@
         </v-col>
       </v-row>
     </v-card-text>
-    <v-card-actions>
+    <v-card-actions v-if="is_mobile_xs">
       <v-btn @click="show_followers = true">Show followers</v-btn>
       <v-btn @click="show_repos = true">Show repos</v-btn>
     </v-card-actions>
@@ -107,7 +115,12 @@ export default Vue.extend({
     show_repos: false,
   }),
   computed: {
-    ...mapGetters(["GET_USER_DETAIL", "IS_LOADING", "GET_PROFILE"]),
+    ...mapGetters([
+      "GET_USER_DETAIL",
+      "IS_LOADING",
+      "GET_PROFILE",
+      "IS_LOGGED_IN",
+    ]),
     user() {
       if (this.isProfile) {
         return this.GET_PROFILE;
@@ -135,8 +148,6 @@ export default Vue.extend({
 
     async showFollower(follower) {
       this.can_load = false;
-      this.followers_page = 1;
-      this.repos_page = 1;
       this.$router.push({
         name: "UserDetail",
         params: { username: follower.login },
@@ -146,23 +157,58 @@ export default Vue.extend({
   },
   watch: {
     async ["$route.params.username"](value) {
+      if (!value) {
+        return;
+      }
       this.SET_LOADING(true);
+      this.followers_page = 1;
+      this.repos_page = 1;
+      this.show_followers = false;
+      this.show_repos = false;
       await this.loadUserDetailWithReposAndFollowers({ login: value });
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth",
+      });
       this.SET_LOADING(false);
+    },
+    IS_LOGGED_IN: {
+      handler: function (value) {
+        if (this.isProfile && !value) {
+          this.$router.push({
+            name: "Home",
+          });
+        }
+      },
     },
     followers_page: {
       immediate: false,
-      handler: function (value) {
+      handler: async function (value) {
         if (this.can_load) {
-          this.loadUserFollowers(value);
+          this.SET_LOADING(true)
+          await this.loadUserFollowers(value);
+          this.$refs.FollowersList.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: "smooth",
+          });
+          this.SET_LOADING(false)
         }
       },
     },
     repos_page: {
       immediate: false,
-      handler: function (value) {
+      handler: async function (value) {
         if (this.can_load) {
-          this.loadUserRepos(value);
+          this.SET_LOADING(true)
+          await this.loadUserRepos(value);
+          this.$refs.ReposList.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: "smooth",
+          });
+          this.SET_LOADING(false)
         }
       },
     },
@@ -171,8 +217,27 @@ export default Vue.extend({
 </script>
 
 <style lang="less">
+.fade-leave-active {
+  transition: opacity 0.2s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
 .UserDetail {
   flex: 1;
+
+  .FollowersListItem{
+    &:hover{
+      background-color: #ccc;
+      cursor: pointer;
+    }
+  }
   &.mobile-xs {
     .v-card__text {
       padding-bottom: 0 !important;

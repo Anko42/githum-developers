@@ -14,11 +14,13 @@
       </v-row>
     </v-card-title>
     <v-card-text class="px-0">
+       <transition-group name="fade">
       <UserListItem
         v-for="(user, index) in users"
         :key="`UserListItem-${index}`"
         :user="user"
       />
+      </transition-group>
     </v-card-text>
     <v-card-actions class="pagination">
       <v-pagination
@@ -43,7 +45,7 @@ export default Vue.extend({
     UserFilter,
   },
   mounted() {
-    //this.fetchUsers();
+    this.fetchUsers();
   },
   computed: {
     ...mapGetters([
@@ -86,8 +88,8 @@ export default Vue.extend({
   watch: {
     page: {
       immediate: false,
-      handler: function () {
-        this.fetchUsers();
+      handler: async function () {
+        await this.fetchUsers();
       },
     },
   },
@@ -95,7 +97,17 @@ export default Vue.extend({
 </script>
 
 <style lang="less">
+
+fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
 .UserList {
+  flex: 1;
   display: flex;
   flex-direction: column;
   .v-card__title,
@@ -123,10 +135,5 @@ export default Vue.extend({
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.mobile-sm {
-}
-.mobile-xs {
 }
 </style>
