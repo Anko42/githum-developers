@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="Home">
     <UserList />
   </v-container>
 </template>
@@ -16,3 +16,11 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style lang="less">
+  .container{
+    max-height:100%;
+    height:100%;
+    display: flex;
+  }
+</style>

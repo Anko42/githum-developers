@@ -1,22 +1,33 @@
 <template>
-  <v-card class="UserList" :loading="loading" :disabled="loading">
+  <v-card
+    class="UserList"
+    :loading="loading"
+    :disabled="loading"
+    :class="{ mobile: is_mobile, 'mobile-xs': is_mobile_xs }"
+  >
     <v-card-title class="UserListHeader">
       <v-row>
-        <v-col cols="3"><UserFilter /></v-col>
-        <v-col cols="4">Login</v-col>
-        <v-col cols="2"> Repos count</v-col>
-        <v-col cols="3"> Followers count </v-col>
+        <v-col cols="12" md="3"><UserFilter /></v-col>
+        <v-col cols="4" v-if="!is_mobile">Login</v-col>
+        <v-col cols="2" v-if="!is_mobile"> Repos count</v-col>
+        <v-col cols="3" v-if="!is_mobile"> Followers count </v-col>
       </v-row>
     </v-card-title>
     <v-card-text class="px-0">
+       <transition-group name="fade">
       <UserListItem
         v-for="(user, index) in users"
         :key="`UserListItem-${index}`"
         :user="user"
       />
+      </transition-group>
     </v-card-text>
     <v-card-actions class="pagination">
-      <v-pagination v-model="page" :length="length"></v-pagination>
+      <v-pagination
+        total-visible="5"
+        v-model="page"
+        :length="length"
+      ></v-pagination>
     </v-card-actions>
   </v-card>
 </template>
@@ -31,28 +42,41 @@ export default Vue.extend({
   name: "UserList",
   components: {
     UserListItem,
-    UserFilter
+    UserFilter,
   },
   mounted() {
-    //this.fetchUsers();
+    this.fetchUsers();
   },
   computed: {
-    ...mapGetters(["GET_USERS", "IS_LOADING", "GET_FILTER_PAGE", "GET_USERS_TOTAL_COUNT","GET_FILTER_PER_PAGE"]),
+    ...mapGetters([
+      "GET_USERS",
+      "IS_LOADING",
+      "GET_FILTER_PAGE",
+      "GET_USERS_TOTAL_COUNT",
+      "GET_FILTER_PER_PAGE",
+    ]),
     loading() {
       return this.IS_LOADING;
     },
     length() {
       return ~~(this.GET_USERS_TOTAL_COUNT / this.GET_FILTER_PER_PAGE);
     },
-    page: {
-      get: function(){
-        return this.GET_FILTER_PAGE
-      },
-      set: function(value){
-        this.SET_FILTER_PAGE(value)
-      } 
+    is_mobile() {
+      const { $vuetify } = this;
+      return $vuetify.breakpoint.sm || $vuetify.breakpoint.xs;
     },
-
+    is_mobile_xs() {
+      const { $vuetify } = this;
+      return $vuetify.breakpoint.xs;
+    },
+    page: {
+      get: function () {
+        return this.GET_FILTER_PAGE;
+      },
+      set: function (value) {
+        this.SET_FILTER_PAGE(value);
+      },
+    },
     users() {
       return this.GET_USERS;
     },
@@ -61,30 +85,53 @@ export default Vue.extend({
     ...mapActions(["fetchUsers"]),
     ...mapMutations(["SET_FILTER_PAGE"]),
   },
-  watch:{
+  watch: {
     page: {
       immediate: false,
-      handler: function(){
-        this.fetchUsers();
-      }
-    }
-  }
+      handler: async function () {
+        await this.fetchUsers();
+      },
+    },
+  },
 });
 </script>
 
 <style lang="less">
 
-.UserList{
-  .v-cart__text{
-    padding: 0!important;
-  }
+fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s;
 }
-.UserListHeader{
-    border-bottom: 1px solid;
-    padding: 0;
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 
-.pagination{
+.UserList {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  .v-card__title,
+  .v-card__actions {
+    flex: 0;
+  }
+  .v-card__text {
+    flex: 1;
+  }
+  .v-card__actions {
+    margin-top: auto;
+  }
+
+  .v-cart__text {
+    padding: 0 !important;
+  }
+}
+.UserListHeader {
+  border-bottom: 1px solid;
+  padding: 0;
+}
+
+.pagination {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
